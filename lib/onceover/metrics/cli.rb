@@ -1,5 +1,6 @@
 # Create a class to hold the new command definition.  The class defined should
 # match the file we are contained in.
+require 'onceover/metrics/metrics'
 class Onceover
   module Metrics
     class CLI
@@ -8,20 +9,17 @@ class Onceover
         def self.command
           @cmd ||= Cri::Command.define do
             name 'metrics'
-            usage 'metrics [--name NAME]'
+            usage 'metrics [--format NAME]'
             summary "Metrics plugin for Onceover"
             description <<-DESCRIPTION
-This is a sample plugin to show you how to get started writing your own
-plugins for onceover, The gateway drug to automated infrastructure testing 
-with Puppet
+Output some handy code metrics so you can guage the size of your Puppet code
             DESCRIPTION
-          
-            option :n,  :name, 'Who to say hello to', :argument => :optional
+
+            option nil, :format, 'Format - json or text', :argument => :optional, default: "text"
+            flag nil, :detailed, 'Output per-class stats in text mode', :argument => :optional, default: false
 
             run do |opts, args, cmd|
-              # print a simple message - this is the point where you would
-              # normally call out to a library to do the real work
-              logger.info "Metrics, #{opts[:name]||'World'}!"
+              Onceover::Metrics::Metrics.run opts
             end
           end
         end
