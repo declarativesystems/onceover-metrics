@@ -147,7 +147,9 @@ class Onceover
         # parse each file to count top-level keys
         top_level_keys = []
         yaml_files.each do |yaml_file|
-          lines = File.readlines(yaml_file).length
+
+          # count lines that are whitespace or comments
+          lines = File.readlines(yaml_file).reject{|e| e =~ /^\s*(\s*|#.*)$/}.length
 
           data = YAML.load_file(yaml_file)
           stats[HIERA_KEY][YAML_KEY][yaml_file] = {
@@ -182,11 +184,6 @@ class Onceover
       end
 
       def self.format_report(stats, detailed)
-
-        puts "----- [Puppetfile] -----"
-        print_table(stats[TOTALS_KEY][PUPPETFILE_KEY])
-        puts ""
-
         if detailed
           puts "----- [Hiera] -----"
           stats[HIERA_KEY][YAML_KEY].each do |yaml_file, data|
@@ -253,18 +250,19 @@ class Onceover
               MODULES_KEY => puppetfile[TOTALS_KEY][MODULES_KEY] + code_stats[TOTALS_KEY][MODULES_KEY]
             }
           },
-
         }
-
-#        stats = {}.deep_merge(puppetfile).deep_merge(code_stats).deep_merge(hiera)
 
         if opts[:format] == "json"
           pretty_json = JSON.pretty_generate(stats)
           puts pretty_json
         elsif opts[:format] == "csv"
-          # only basic stats for CSV right now...
+
           csv_string = CSV.generate do |csv|
-            stats[TOTALS_KEY].to_a.each {|elem| csv << elem}
+            stats[TOTALS_KEY].each { |k,v|
+              csv << [k]
+              v.to_a.each {|elem| csv << elem}
+              csv << []
+            }
           end
 
           puts csv_string
@@ -272,7 +270,6 @@ class Onceover
           # human mode
           format_report(stats, opts[:detailed])
         end
-
 
       end
     end

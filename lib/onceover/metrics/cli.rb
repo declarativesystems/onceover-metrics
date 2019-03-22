@@ -15,7 +15,7 @@ class Onceover
 Output some handy code metrics so you can guage the size of your Puppet code
             DESCRIPTION
 
-            option nil, :format, 'Format - json or text', :argument => :optional, default: "text"
+            option nil, :format, 'Format - json, csv or text', :argument => :optional, default: "text"
             flag nil, :detailed, 'Output per-class stats in text mode', :argument => :optional, default: false
 
             run do |opts, args, cmd|
